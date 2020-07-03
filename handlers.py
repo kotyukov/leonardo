@@ -359,8 +359,10 @@ async def get_style_from_user(message: Message, state: FSMContext):
 @dp.callback_query_handler(select_demo_callback.filter(type='style'), state=NSTStates.quantity_accepted)
 async def set_style(call: CallbackQuery, callback_data: dict, state: FSMContext):
     number = callback_data.get("number")
+    async with state.proxy() as data:
+        key = 'choose_style2_pic' if data['number_of_styles_received'] == 1 else 'choose_style_pic'
     await call.message.edit_media(media=InputMediaPhoto(open(f'style_demos/demo_({number}).png', 'rb'),
-                                  caption=messages['choose_style_pic']),
+                                  caption=messages[key]),
                                   reply_markup=demo_style_set[number])
     async with state.proxy() as data:
         data['selected_style'] = number
