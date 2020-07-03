@@ -143,7 +143,7 @@ async def show_help_menu(call: CallbackQuery, state: FSMContext):
 async def show_smile_example(call: CallbackQuery, state: FSMContext):
     await call.message.delete()
     await call.message.answer_photo(photo=open(f'examples/example_smilification.png', 'rb'),
-                                    caption='Пример работы алгоритма styleGAN: добавление улыбки.',
+                                    caption=messages['example_smile'],
                                     reply_markup=to_examples_list_btn)
 
 
@@ -155,7 +155,7 @@ async def show_smile_example(call: CallbackQuery, state: FSMContext):
 async def show_nst_example_one(call: CallbackQuery, state: FSMContext):
     await call.message.delete()
     await call.message.answer_photo(photo=open('examples/example_transfer_one.png', 'rb'),
-                                    caption='Пример работы алгоритма NST: перенос одного стиля на целевое изображение.',
+                                    caption=messages['example_nst_one'],
                                     reply_markup=to_examples_list_btn)
 
 
@@ -167,7 +167,7 @@ async def show_nst_example_one(call: CallbackQuery, state: FSMContext):
 async def show_nst_example_two(call: CallbackQuery, state: FSMContext):
     await call.message.delete()
     await call.message.answer_photo(photo=open(f'examples/example_transfer_two.png', 'rb'),
-                                    caption='Пример работы алгоритма NST: одновременный перенос двух стилей на целевое изображение.',
+                                    caption=messages['example_nst_two'],
                                     reply_markup=to_examples_list_btn)
 
 
@@ -203,7 +203,7 @@ async def get_content_from_collection(call: CallbackQuery, state: FSMContext):
     await call.message.delete()
     selected_content = await get_from_state('selected_content', state)
     await call.message.answer_photo(photo=open(f'content_demos/demo_({selected_content}).png', 'rb'),
-                                    caption='Выберите картинку на которую будет перенесён новый стиль',
+                                    caption=messages['choose_content_pic'],
                                     reply_markup=demo_content_set[selected_content])
 
 
@@ -237,7 +237,7 @@ async def get_content_from_user(message: Message, state: FSMContext):
 @dp.callback_query_handler(select_demo_callback.filter(type='content'), state=NSTStates.gatys_nst_selected)
 async def set_content(call: CallbackQuery, callback_data: dict, state: FSMContext):
     number = callback_data.get("number")
-    await call.message.edit_media(media=InputMediaPhoto(open(f'content_demos/demo_({number}).png', 'rb'), caption='Выберите картинку на которую будет перенесён новый стиль'),
+    await call.message.edit_media(media=InputMediaPhoto(open(f'content_demos/demo_({number}).png', 'rb'), caption=messages['choose_content_pic']),
                                   reply_markup=demo_content_set[number])
     async with state.proxy() as data:
         data['selected_content'] = number
@@ -320,8 +320,8 @@ async def get_style_from_collection(call: CallbackQuery, state: FSMContext):
     await call.message.delete()
     selected_style = await get_from_state('selected_style', state)
     await call.message.answer_photo(photo=open(f'style_demos/demo_({selected_style}).png', 'rb'),
-                               caption='Выберите стиль из коллекции',
-                               reply_markup=demo_style_set[selected_style])
+                                    caption=messages['choose_style_pic'],
+                                    reply_markup=demo_style_set[selected_style])
 
 
 # -----------------------
@@ -348,7 +348,7 @@ async def get_style_from_user(message: Message, state: FSMContext):
             path = f'received_data/style_{message.from_user.id}.jpg'
         data['path_to_style'].append(path)
     await message.photo[-1].download(path)
-    await message.answer(text='Стиль успешно загружен.', reply_markup=next_btn)
+    await message.answer(text=messages['style_load_succ'], reply_markup=next_btn)
     await NSTStates.style_imgs_accepted.set()
 
 
@@ -360,7 +360,7 @@ async def get_style_from_user(message: Message, state: FSMContext):
 async def set_style(call: CallbackQuery, callback_data: dict, state: FSMContext):
     number = callback_data.get("number")
     await call.message.edit_media(media=InputMediaPhoto(open(f'style_demos/demo_({number}).png', 'rb'),
-                                  caption='Выберите стиль из коллекции'),
+                                  caption=messages['choose_style_pic']),
                                   reply_markup=demo_style_set[number])
     async with state.proxy() as data:
         data['selected_style'] = number
@@ -412,7 +412,7 @@ async def accept_style(call: CallbackQuery, state: FSMContext):
     else:
         if call.data == "accept_style":
             await call.message.edit_media(media=InputMediaPhoto(open(f'style_demos/demo_(1).png', 'rb'),
-                                          caption='Выберите второй стиль из коллекции. Желательно чтобы он отличался от первого, иначе какой в нём смысл?!'),
+                                          caption=messages['choose_style2_pic']),
                                           reply_markup=demo_style_set[str(1)])
         elif call.data == "accept_uploaded_img":
             await NSTStates.quantity_accepted.set()
